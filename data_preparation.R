@@ -1,5 +1,5 @@
 ################################################################################
-#Dashboard Data Cleaning
+#BMZ Africa Dashboard: Data Preparation
 ################################################################################
 
 #checks if pacman exists, if not it installs it
@@ -41,13 +41,11 @@ add_country <- function(.data, country_to_add) {
 
 
 #############################
-####Text data #######
+####Glossar #######
 ############################
 
 ipc_glossar <- read_xlsx((here("data", "ipc_glossar.xlsx")))
 save(ipc_glossar, file = here("data", "ipc_glossar.rdata"))
-
-quellen <- read_xlsx((here("data", "quellen.xlsx")))
 
 
 #############################
@@ -676,6 +674,8 @@ save(data_boxes, file = here("data", "data_boxes.rdata"))
 #Einschätzung der Regionalreferate
 ##################################
 
+
+##currently only placeholder text
 data_referate_raw <- read_xlsx(here("data", "einschätzung_referate_clean.xlsx"))
 
 data_referate <- data_referate_raw %>% 
