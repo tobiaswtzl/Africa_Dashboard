@@ -12,4 +12,4 @@ The amount of German bilateral development aid to African countries is visualise
 
 ## Manual
 
-To run the app, you just have to run the global.R file (assuming you have the data).
+To run the app, you just have to run the global.R file (assuming you have the data). In addition, access to the [ACLED](https://acleddata.com/) and [IPC](https://www.ipcinfo.org/) API is required to obtain the latest data.
