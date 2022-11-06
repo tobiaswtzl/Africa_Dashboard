@@ -25,7 +25,8 @@ pacman::p_load("dplyr",
                "jsonlite",
                "rhdx",
                "purrr",
-               "raster")
+               "raster",
+               "acled.api")
 
   #set wd
 here::i_am("data_prep.R")
@@ -334,12 +335,12 @@ data_ch <- data_ch_raw %>%
 #ICP / CH data 
 #######################
 
-#token for api
-token <- readr::read_file(here("data", "token_ipc.txt"))
+#load tokens
+tokens <- read.csv(here("data", "token_acled.csv"))
 
 #get json file
 res <- GET("https://api.ipcinfo.org/country?format=json",
-           query = list(key = token))
+           query = list(key = tokens$token[2]))
 
 #json to df
 data_ipc_raw <- fromJSON(rawToChar(res$content))
@@ -529,11 +530,27 @@ save(map_data, file = here("data", "map_data.rdata"))
 #ACLED 
 #######################
 
-#currently without using the api because receiving the data without special access is only possible  three times
-data_acled_raw <- read.csv(here("data", "data_acled_full.csv")) %>% 
-  
-  #only events from last 6 month
-  dplyr::filter(lubridate::parse_date_time(event_date, "%d %m %Y") > Sys.Date() %m-% months(6)) %>% 
+##API can only be used 6 times a year as a ministry - use sparingly (4 times left) 
+
+#Load Acled data
+# data_acled_raw <- acled.api::acled.api(
+#     email.address = tokens$email[1],
+#     access.key = "tokens$token[1]",
+
+#      #all African regions
+#     region = c(1, 2, 3, 4, 5),
+
+#      #last 6 month
+#     start.date = paste0(Sys.Date() %m-% months(6)),
+#     end.date = paste0(Sys.Date()))
+# 
+#   save(data_acled_raw, file = here("data", "data_acled_raw.rdata"))
+
+#load Acled Data
+load(here("data", "data_acled_raw.rdata"))  
+
+data_acled_raw <- data_acled_raw %>% 
+  #format date
   dplyr::mutate(date = as.character(lubridate::parse_date_time(event_date, "%d %m %Y"))) 
 
 #get dates of oldest and most recent date
