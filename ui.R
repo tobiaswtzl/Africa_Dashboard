@@ -136,7 +136,7 @@ ui <- dashboardPage(
                                 htmlOutput("einschaetzung_referate"),
                                 
                                 #fix height, enable scrollbar
-                                style = 'overflow-y:scroll;height:790px;'
+                                style = 'overflow-y:scroll'
                               )
                             ),
                             
@@ -149,7 +149,7 @@ ui <- dashboardPage(
                                 plotlyOutput("plot_aktuelle_lage", height = "67vh"),
                                 
                                 #fix height
-                                style = 'height:790px;'
+                                height = '72vh;'
                               )
                             ),
                             
@@ -162,21 +162,22 @@ ui <- dashboardPage(
                                 tableOutput("ipc_glossar"),
                                 
                                 #fix height, enable scrollbar
-                                height = "72vh", style = "overflow-y:scroll;font-size:120%; height:790px"
+                                height = "72vh",
+                                style = "overflow-y:scroll;font-size:120%; height:67vh"
                               )
                             ),
                             
                             #Quellen
                             tabPanel(
                               title = "Quellen", width = NULL, status = "primary",
-                              div(
-                                tableOutput("quellen"),
-                                
-                                #fix height
-                                height = "72vh",
-                                style = "overflow-y:scroll; font-size:120%; height:790px"
-                              )
+                            div(
+                              tableOutput("quellen"),
+                              
+                              #fix height
+                              height = "72vh",
+                              style = "overflow-y:scroll; font-size:120%; height:67vh"
                             )
+                     )                
                      ),
                      
                      #Additional information
