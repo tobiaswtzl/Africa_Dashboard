@@ -1,0 +1,26 @@
+/* Custom CSS for Dashboard */
+
+
+/* Stop white flashing when updating plots */
+.recalculating {
+    opacity: inherit !important;
+}
+
+/* increase font size of sidebar */
+.main-sidebar { 
+  font-size: 20px; 
+  
+}
+
+/* fix height of valueBoxes */
+.small-box {
+  height: 200px
+  
+}
+
+/* change position of icon in value box */
+.small-box .icon-large {
+  top: 5px;
+  
+}
+
