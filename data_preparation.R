@@ -2,9 +2,6 @@
 #Dashboard Data Cleaning
 ################################################################################
 
-#turn off scientific notation
-options(scipen=1000)
-
 #checks if pacman exists, if not it installs it
 if (!require("pacman")) install.packages("pacman")
 
@@ -42,8 +39,6 @@ add_country <- function(.data, country_to_add) {
   ) 
 }
 
-#load data
-data_raw <- readxl::read_xlsx(here("data","daten_memphis.xlsx"), sheet = 2)
 
 #############################
 ####Text data #######
@@ -58,6 +53,9 @@ quellen <- read_xlsx((here("data", "quellen.xlsx")))
 #############################
 ####Memphis data #######
 ############################
+
+#load data
+data_raw <- readxl::read_xlsx(here("data","daten_memphis.xlsx"), sheet = 2)
 
 #prepare data
 data_bmz <- data_raw %>% 
@@ -189,12 +187,12 @@ data_wb <- data_wb_raw %>%
   dplyr::select(ISO_A3, population_wb)
 
 #merge with population data
-data <- data_bmz %>% 
+data_memphis <- data_bmz %>% 
   left_join(data_wb, by = "ISO_A3")
 
 
 #save
-save(data, file = here("data", "data.rdata"))
+save(data_memphis, file = here("data", "data_memphis.rdata"))
 
 
 
@@ -498,7 +496,7 @@ data_foodbasket <- data_foodbasket_raw %>%
 #Merge 
 #######################
 
-data_hunger <- countries %>% 
+data_external <- countries %>% 
   
   #add population data
   left_join(data_icp_ch, by = "ISO_A3") %>% 
@@ -510,7 +508,7 @@ data_hunger <- countries %>%
   dplyr::mutate(analysed_population_percent = round(population_analysed / population_wb * 100, 1)) %>% 
   
   #add debt data
-  dplyr::left_join(data_debt, by = "ISO_A3") %>% 
+  # dplyr::left_join(data_debt, by = "ISO_A3") %>% 
 
   #add food basket data
   dplyr::left_join(data_foodbasket, by = "ISO_A3")
@@ -518,10 +516,10 @@ data_hunger <- countries %>%
 
 
 #merge with spatial data
-world_map_data_africa_food_merged <- sp::merge(world_map_data_africa, data_hunger, by.x = 'ISO_A3', by.y = 'ISO_A3') 
+map_data <- sp::merge(world_map_data_africa, data_external, by.x = 'ISO_A3', by.y = 'ISO_A3') 
 
 #save
-save(world_map_data_africa_food_merged, file = here("data", "world_map_data_africa_food_merged.rdata"))
+save(map_data, file = here("data", "map_data.rdata"))
 
 
 ################################################################################

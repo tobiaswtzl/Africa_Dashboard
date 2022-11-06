@@ -1,9 +1,6 @@
 ################################################################################
-#Dashboard Afrika
+#BMZ Africa Dashboard
 ################################################################################
-
-#turn off scientific notation
-options(scipen=1000)
 
 #checks if pacman package exists, if not install
 if (!require("pacman")) install.packages("pacman")
@@ -19,10 +16,10 @@ pacman::p_load("shiny",
                )
 
 #load data
-load(here("data", "data.rdata"))
+load(here("data", "data_memphis.rdata"))
 load(here("data", "data_boxes.rdata"))
 load(here("data", "data_referate.rdata"))
-load(here("data", "world_map_data_africa_food_merged.rdata"))
+load(here("data", "map_data.rdata"))
 load(here("data", "ipc_glossar.rdata"))
 
 ################################################################################
@@ -60,9 +57,9 @@ ui <- dashboardPage(
       #choose date range
           sliderInput("date_range",
                       "Gewünschter Zeitraum",
-                      value = c(2005, max(data$year)), 
-                      min = min(data$year),
-                      max = max(data$year),
+                      value = c(2005, max(data_memphis$year)), 
+                      min = min(data_memphis$year),
+                      max = max(data_memphis$year),
                       step = 1,
                       sep = ""
           ),
@@ -522,7 +519,7 @@ server <- function(input, output, session) {
     )
     updateSliderInput(session,
                       "date_range",
-                      value = c(2005, max(data$year))
+                      value = c(2005, max(data_memphis$year))
     )
     updateSwitchInput(session,
                       "switch_money",
@@ -550,28 +547,28 @@ server <- function(input, output, session) {
   Phase 5 (Hungersnot):     &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; %g &#37 <br/>
   Einschätzung gültig für: % s  <br/>
   Anteil der analysierten Bevölkerung: %g &#37",
-  world_map_data_africa_food_merged$country_de,
-  world_map_data_africa_food_merged$phase35_percent,
-  world_map_data_africa_food_merged$phase1_percent,
-  world_map_data_africa_food_merged$phase2_percent,
-  world_map_data_africa_food_merged$phase3_percent,
-  world_map_data_africa_food_merged$phase4_percent,
-  world_map_data_africa_food_merged$phase5_percent,
-  world_map_data_africa_food_merged$period,
-  world_map_data_africa_food_merged$analysed_population_percent
+  map_data$country_de,
+  map_data$phase35_percent,
+  map_data$phase1_percent,
+  map_data$phase2_percent,
+  map_data$phase3_percent,
+  map_data$phase4_percent,
+  map_data$phase5_percent,
+  map_data$period,
+  map_data$analysed_population_percent
     ) %>% lapply(htmltools::HTML)
     
     
-    map_africa(data = world_map_data_africa_food_merged,
+    map_africa(data = map_data,
                bins = c(0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70),
-               world_map_data_africa_food_merged$phase35_percent,
+               map_data$phase35_percent,
                labels = labels_food,
                title = "Haushalte in Phase 3-5")
     
     } else  {
     
       #prepare for leaflet
-      africa_data <- leaflet::leaflet(world_map_data_africa_food_merged,
+      africa_data <- leaflet::leaflet(map_data,
                              options = leafletOptions(
                                minZoom = 3.4,
                                maxZoom = 7,
@@ -592,15 +589,15 @@ server <- function(input, output, session) {
       #prepare colours
       bins <- c(-5, 0, 3, 11, 25, Inf)
       pal <- leaflet::colorBin(c("#228B22",  "#ffffcc", "#fd8d3c", "#e31a1c", "#800026"),
-                      domain = world_map_data_africa_food_merged$change_foodbasket_percent,
+                      domain = map_data$change_foodbasket_percent,
                       bins = bins
                       )
       
       #prepare labels
       labels_food_basket <- sprintf(
         "<strong>%s: %g &#37 Kostenveränderung Food Basket</strong><br/>",
-        world_map_data_africa_food_merged$country_de,
-        world_map_data_africa_food_merged$change_foodbasket_percent) %>%
+        map_data$country_de,
+        map_data$change_foodbasket_percent) %>%
         lapply(htmltools::HTML)
       
       
@@ -1015,7 +1012,7 @@ server <- function(input, output, session) {
 
   #filtered data by DO and year
   data_filter_do_year <- reactive({
-     data %>%
+    data_memphis %>%
 
       #filter dos
         dplyr::filter(do %in% input$select_do) %>%
@@ -1134,7 +1131,7 @@ server <- function(input, output, session) {
     
     
     #merge with spatial data
-    world_map_data_africa_merged <- merge(world_map_data_africa_food_merged, data_c, by.x = 'ISO_A3', by.y = 'ISO_A3') 
+    world_map_data_africa_merged <- merge(map_data, data_c, by.x = 'ISO_A3', by.y = 'ISO_A3') 
     
     #prepare colours
     if(input$per_capita == FALSE) {
@@ -1167,7 +1164,7 @@ server <- function(input, output, session) {
       
     }
     
-    map_africa(data = world_map_data_africa_food_merged,
+    map_africa(data = map_data,
                bins = bins_ez,
                displayed_var = world_map_data_africa_merged$financial_commitment_in_mio_per_year,
                labels = labels_ez,
@@ -1181,6 +1178,8 @@ server <- function(input, output, session) {
   observeEvent(input$africa_map_shape_click, {
     # click event
     clicked_country <- input$africa_map_shape_click$id
+    
+    #print name of clicked country
     print(clicked_country)
   })
   
