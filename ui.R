@@ -1,29 +1,5 @@
 ################################################################################
-#BMZ Africa Dashboard
-################################################################################
-
-#checks if pacman package exists, if not install
-if (!require("pacman")) install.packages("pacman")
-
-#install/load packages
-pacman::p_load("shiny",
-               "dplyr",
-               "here",
-               "leaflet",
-               "shinyWidgets",
-               "plotly",
-               "shinydashboard"
-)
-
-#load data
-load(here("data", "data_memphis.rdata"))
-load(here("data", "data_boxes.rdata"))
-load(here("data", "data_referate.rdata"))
-load(here("data", "map_data.rdata"))
-load(here("data", "ipc_glossar.rdata"))
-
-################################################################################
-###Shiny App
+#BMZ Africa Dashboard: UI
 ################################################################################
 
 #UI
@@ -38,7 +14,7 @@ ui <- dashboardPage(
     #menu item, depended on renderMenu in Server
     sidebarMenuOutput("menu"),
     
-    #Sidebar for first  menuitem (aktuelle Lage)
+    #Sidebar for first menuitem (aktuelle Lage) - conditional on clicked item
     conditionalPanel(
       condition = "input.tabs == 'aktuelle_daten'",
       awesomeRadio(
@@ -50,11 +26,11 @@ ui <- dashboardPage(
       )
     ),
     
-    #Sidebar for second menuitem (Bilaterale EZ (BMZ))
+    #Sidebar for second menuitem (Bilaterale EZ (BMZ)) - conditional on clicked item
     conditionalPanel(
       condition = "input.tabs == 'ez_daten'",
       
-      #choose date range
+      #choose date range: from min to max year in Memphis Data
       sliderInput("date_range",
                   "Gewünschter Zeitraum",
                   value = c(2005, max(data_memphis$year)), 
@@ -91,7 +67,7 @@ ui <- dashboardPage(
       #siwtch gebucht / belegte gelder
       switchInput("switch_money", label = "Gelder", onLabel = "Belegt", offLabel = "Gesamt"),
       
-      #Ez per capita
+      #EZ per capita
       switchInput("per_capita", label = "Gelder", onLabel = "Pro Kopf", offLabel = "Absolut"),
       
       #Reset Button
@@ -105,20 +81,8 @@ ui <- dashboardPage(
   
   dashboardBody(
     
-    #avoid white flashing when refreshing data
-    tags$style(".recalculating { opacity: inherit !important; }"),
-    
-    #change position of icon in value box
-    tags$head(tags$style(HTML('.small-box .icon-large {top: 5px;}'))),
-    
-    #add space between sidebar items
-    tags$style(".sidebar-menu li { margin-bottom: 20; }"),
-    
-    #define size of valueboxes
-    tags$head(tags$style(HTML(".small-box {height: 200px}"))),
-    
-    #increase font size of sidebar
-    tags$style(HTML(".main-sidebar { font-size: 20px; }")),
+    #css changes
+    includeCSS(here("www", "ui_changes.css")),
     
     tabItems(
       
@@ -161,19 +125,7 @@ ui <- dashboardPage(
                      #zusätzliche Informationen
                      tabBox(title = "Zusätzliche Informationen",
                             id = "right_top",
-                            
-                            #Plot of chosen data
-                            tabPanel(
-                              title = "Grafische Darstellung",
-                              width = NULL,
-                              status = "primary",
-                              div(
-                                plotlyOutput("plot_aktuelle_lage", height = "67vh"),
-                                
-                                #fix height
-                                style = 'height:790px;'
-                              )
-                            ),
+                            height = "72vh",
                             
                             #Einschaetzung Regionalreferat
                             tabPanel(
@@ -185,6 +137,19 @@ ui <- dashboardPage(
                                 
                                 #fix height, enable scrollbar
                                 style = 'overflow-y:scroll;height:790px;'
+                              )
+                            ),
+                            
+                            #Plot of chosen data
+                            tabPanel(
+                              title = "Grafische Darstellung",
+                              width = NULL,
+                              status = "primary",
+                              div(
+                                plotlyOutput("plot_aktuelle_lage", height = "67vh"),
+                                
+                                #fix height
+                                style = 'height:790px;'
                               )
                             ),
                             
@@ -208,13 +173,13 @@ ui <- dashboardPage(
                                 tableOutput("quellen"),
                                 
                                 #fix height
-                                height = "72vh", style = "overflow-y:scroll; font-size:120%; height:790px"
+                                height = "72vh",
+                                style = "overflow-y:scroll; font-size:120%; height:790px"
                               )
                             )
-                            
-                            
-                            #Additional information
                      ),
+                     
+                     #Additional information
                      box(
                        fluidRow(
                          
@@ -259,6 +224,7 @@ ui <- dashboardPage(
                      #absolute values
                      tabBox(title = "Gesamtüberblick",
                             id = "right_top",
+                            height = "50vh",
                             
                             #Kernthemen
                             tabPanel(
@@ -283,38 +249,33 @@ ui <- dashboardPage(
                               status = "primary",
                               plotlyOutput("fem_ez_pie", height = "40vh")
                             ),
-                            
-                            #height
-                            height = "50vh"
                      ),
                      
                      #values over time
                      tabBox(title = "Zeitverlauf",
                             id = "right_bottom",
+                            height = "36vh",
                             
                             #Kernthemen
                             tabPanel(
                               title = "Kernthemen",
                               width = NULL,
-                              plotlyOutput("kernthema_area")
+                              plotlyOutput("kernthema_area", height = "30vh")
                             ),
                             
                             #Referate
                             tabPanel(
                               title = "Referate",
                               width = NULL,
-                              plotlyOutput("referat_area")
+                              plotlyOutput("referat_area", height = "30vh")
                             ),
                             
                             #Fem EZ
                             tabPanel(
                               title = "Fem. EZ",
                               width = NULL,
-                              plotlyOutput("fem_ez_area")
+                              plotlyOutput("fem_ez_area", height = "30vh")
                             ),
-                            
-                            #height
-                            height = "40vh"
                      )
                      
               )

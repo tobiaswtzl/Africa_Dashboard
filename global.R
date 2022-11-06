@@ -15,9 +15,15 @@ pacman::p_load("shiny",
                "shinydashboard"
 )
 
+#set wd
+here::i_am("global.R")
+
 #load data
 load(here("data", "data_memphis.rdata"))
 load(here("data", "data_boxes.rdata"))
 load(here("data", "data_referate.rdata"))
 load(here("data", "map_data.rdata"))
 load(here("data", "ipc_glossar.rdata"))
+
+#run shinyApp
+# shiny::shinyApp(ui = source(here("ui.R")), server = source(here("server.R")))
