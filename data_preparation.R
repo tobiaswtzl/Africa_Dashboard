@@ -618,7 +618,7 @@ data_boxes <- countries %>%
   left_join(data_acled_protest, by = "ISO_A3") %>% 
   left_join(data_displacement, by = "ISO_A3") %>% 
   left_join(data_disasters, by = "ISO_A3") %>% 
-  left_join(data_hunger, by = "ISO_A3") %>% 
+  left_join(data_external, by = "ISO_A3") %>% 
 
   #new column with english country name
   mutate(country_en = countrycode::countrycode(ISO_A3, origin = "iso3c", destination = "country.name.en")) %>% 
@@ -641,7 +641,7 @@ data_boxes <- countries %>%
           protest_riot_sum = sum(data_acled_protest$protest_riot_sum),
           int_displacement = sum(data_displacement$int_displacement),
           affected_sum = sum(data_disasters$affected_sum),
-          phase35_percent = round(sum(data_hunger$phase35, na.rm = TRUE) / sum(data_hunger$population_analysed, na.rm = TRUE) * 100, 2),
+          phase35_percent = round(sum(data_external$phase35, na.rm = TRUE) / sum(data_external$population_analysed, na.rm = TRUE) * 100, 2),
           change_foodbasket_percent = round(mean(data_foodbasket$change_foodbasket_percent, na.rm = TRUE, 2)),
           population_wb = round(sum(data_wb$population_wb, na.rm = TRUE, 2))
     ) %>% 
