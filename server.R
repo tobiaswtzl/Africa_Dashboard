@@ -40,7 +40,7 @@ server <- function(input, output, session) {
     )
   })
   
-  #Reset all filters
+  #Reset all filters when action button is clicked
   observeEvent(input$reset_all, {
     updatePickerInput(session, "select_do",
                       selected = c(
@@ -133,7 +133,7 @@ server <- function(input, output, session) {
         map_data$change_foodbasket_percent) %>%
         lapply(htmltools::HTML)
       
-      
+      #plot
       africa_data %>% 
         leaflet::addPolygons(
           fillColor = ~pal(change_foodbasket_percent),
@@ -423,6 +423,7 @@ server <- function(input, output, session) {
     )
   })
   
+  #Price Food Basket box
   output$foodbasketBox <- renderValueBox({
     
     data_box_foodbasket <- data_boxes_reac()
@@ -441,6 +442,7 @@ server <- function(input, output, session) {
   }
   )
   
+  #Hunger Box
   output$hungerBox <- renderValueBox({
     
     data_box_hunger <- data_boxes_reac()
@@ -463,7 +465,7 @@ server <- function(input, output, session) {
   #Prepare Memphis data
   ################################################################################
   
-  #filtered data by DO and year
+  #filter data by DO and year
   data_filter_do_year <- reactive({
     data_memphis %>%
       
@@ -617,6 +619,7 @@ server <- function(input, output, session) {
       
     }
     
+    #plot
     map_africa(data = map_data,
                bins = bins_ez,
                displayed_var = world_map_data_africa_merged$financial_commitment_in_mio_per_year,
@@ -629,6 +632,7 @@ server <- function(input, output, session) {
   
   # get name of clicked polygon
   observeEvent(input$africa_map_shape_click, {
+    
     # click event
     clicked_country <- input$africa_map_shape_click$id
     
@@ -696,6 +700,9 @@ server <- function(input, output, session) {
               b = 30, t = 62,
               pad = 20)
   
+  ################################
+  #Kernthemen: absolut
+  ################################
   
   output$kernthema_pie <- renderPlotly({
     
