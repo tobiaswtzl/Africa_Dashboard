@@ -1,160 +1,14 @@
 ################################################################################
-#BMZ Africa Dashboard
+#BMZ Africa Dashboard: Server
 ################################################################################
 
-#checks if pacman package exists, if not install
-if (!require("pacman")) install.packages("pacman")
-
-#install/load packages
-pacman::p_load("shiny",
-               "dplyr",
-               "here",
-               "leaflet",
-               "shinyWidgets",
-               "plotly",
-               "shinydashboard"
-)
 
 server <- function(input, output, session) {
   
+  ###################
+  # Function: Plot Pie chart (works only in server environment)
+  ###################
   
-  ################################################################################
-  ###Functions
-  ################################################################################
-  
-  #Plot aktuelle Lage
-  plot_aktuelle_lage <- function(data, variable, custom_title, hover_suffix= "", text_caption) {
-    
-    #remove 0 values
-    data[data==0] <- NA
-    
-    #plot
-    plotly::plot_ly(data = data,
-                    x = ~.data[[variable]],
-                    y = ~reorder(country_de, .data[[variable]]),
-                    text = ~.data[[variable]],
-                    texttemplate= paste("%{x}", hover_suffix),
-                    textposition = 'auto',
-                    type = 'bar',
-                    hoverinfo = 'y',          
-                    orientation = 'h') %>% 
-      
-      #customise layout
-      plotly::layout(
-        title = list(
-          text = custom_title,
-          size = 20
-        ),
-        xaxis = list(
-          title = "",
-          zeroline = FALSE,
-          showline = FALSE,
-          showticklabels = FALSE,
-          showgrid = FALSE
-        ),
-        yaxis = list(
-          title = ""
-        ),
-        annotations = 
-          list(x = 1,
-               y = 0,
-               text = paste0("Quelle: ", text_caption), 
-               showarrow = FALSE,
-               xref='paper',
-               yref='paper', 
-               xanchor='right',
-               yanchor='auto',
-               xshift=0, 
-               yshift=0
-          )
-      ) %>% 
-      plotly::config(modeBarButtonsToRemove = c("zoomIn2d", "zoomOut2d", "resetScale2d", "pan2d", "zoom2d", "autoScale2d",
-                                                "select2d", "lasso2d", "hoverCompareCartesian", "hoverClosestCartesian"), displaylogo = FALSE)
-    
-  }
-  map_africa <- function(data, bins, displayed_var, labels, title, lab_form = " %") {
-    
-    #prepare colours
-    pal <- leaflet::colorBin(
-      "YlOrRd",
-      domain = displayed_var,
-      bins = bins
-    )
-    
-    #create leaflet object
-    leaflet::leaflet(
-      data = data,
-      options = leafletOptions(
-        minZoom = 3.4,
-        maxZoom = 7,
-        dragging = TRUE
-      )
-    ) %>%
-      
-      #define view
-      leaflet::setView(
-        lng = 13.1021,
-        lat = 0.2812,
-        zoom = 3.4
-      ) %>%
-      
-      #polygon data
-      leaflet::addProviderTiles(
-        "MapBox",
-        options = providerTileOptions(
-          id = "mapbox.light",
-          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')
-        )
-      ) %>% 
-      
-      #create coloured ploygons
-      leaflet::addPolygons(
-        fillColor = ~pal(displayed_var),
-        layerId = ~ADMIN,
-        weight = 2,
-        opacity = 1,
-        color = "white",
-        dashArray = "3",
-        fillOpacity = 0.7,
-        
-        #define what happens when mouse hovers over polygons
-        highlightOptions = highlightOptions(
-          weight = 5,
-          color = "#666",
-          dashArray = "",
-          fillOpacity = 0.7,
-          bringToFront = TRUE),
-        
-        #add labels
-        label = labels,
-        labelOptions = labelOptions(
-          style = list("font-weight" = "normal", padding = "3px 8px"),
-          textsize = "15px",
-          direction = "auto")      
-      ) %>% 
-      
-      #add legend
-      leaflet::addLegend(
-        pal = pal,
-        values = ~displayed_var,
-        opacity = 0.7,
-        title = title,
-        position = "bottomright",
-        na.label = "Keine aktuellen Daten",
-        labFormat = labelFormat(suffix = lab_form)
-      )
-    
-  }
-  
-  #function to prepare data for plotting
-  pie_chart_data_prep <- function(data, group_by_var) {
-    
-    data %>%
-      dplyr::group_by({{group_by_var}}) %>%
-      dplyr::summarise(financial_commitment_in_mio_per_variable = sum(financial_commitment_in_mio))
-  }
-  
-  #function to plot prepared data with plotly
   pie_chart_plot <- function(data, group_by_var) {
     
     plotly::plot_ly(data = data,
@@ -174,25 +28,12 @@ server <- function(input, output, session) {
     
   }
   
-  #Area Chart data prep
-  area_chart_data_prep <- function(data, group_by_var) {
-    
-    data %>%
-      dplyr::group_by({{group_by_var}}, year) %>% 
-      
-      #sum
-      dplyr::summarise(financial_commitment_in_mio_per_variable = sum(financial_commitment_in_mio)) %>% 
-      
-      # #pivot for plotting
-      tidyr::pivot_wider(names_from = {{group_by_var}},
-                         values_from = financial_commitment_in_mio_per_variable) 
-  }
-  
   
   #Render menu, passed to Sidebar 
   output$menu <- renderMenu({
     sidebarMenu(
       id = "tabs",
+      
       #different menu tabs
       menuItem(" Aktuelle Lage", tabName = "aktuelle_daten", icon = icon("earth-africa")),
       menuItem(" Bilaterale EZ (BMZ)", tabName = "ez_daten", icon = icon("handshake-simple"))
@@ -223,7 +64,7 @@ server <- function(input, output, session) {
   })
   
   ################################################################################
-  #Prepare Data AKtuelle Situation
+  #Prepare Data Aktuelle Situation
   ################################################################################
   
   output$africa_map_food <- renderLeaflet({
@@ -269,7 +110,7 @@ server <- function(input, output, session) {
       ) %>%
         leaflet::setView(lng = 13.1021 ,
                          lat = 0.2812,
-                         zoom = 3.4
+                         zoom = 3.7
         ) %>%
         leaflet::addProviderTiles("MapBox",
                                   options = providerTileOptions(
@@ -419,92 +260,9 @@ server <- function(input, output, session) {
   
   #render Quellen
   output$quellen <- renderUI({
-    HTML(
-      "<h2>Ernährungssicherheit </h2>",
-      "<h3>Organisation </h3>",
-      "Cadre Harmonisé (CH) und Integrated Food Security Phase Classification (Inititative von:
-        Action Against Hunger, CARE, CILSS, FAO, FEWS NET, FSC, GNC, IGAD, EC JRC, Oxfam, Save the
-        Children, SICA, SADC, UNICEF, WFP)",
-      "<h3>Datenerhebung </h3>",
-      "Haushaltsbefragung",
-      "<h3>Erläuterung Indikator </h3>",
-      "siehe Glossar <br>",
-      '<a href="https://www.ipcinfo.org/ipcinfo-website/ipc-overview-and-classification-system/en/" target="_blank">Quelle</a>',
-      
-      
-      "<h2>Kostensteigerung Food Basket </h2>",
-      "<h3>Organisation </h3>",
-      "World Food Programme",
-      "<h3>Datenerhebung </h3>",
-      "",
-      "<h3>Erläuterung Indikator </h3>",
-      "This indicator contains the change in the cost of a food basket in relation to a previous period
-        (Periods of 3 months). The change of the cost of basic food basket is calculated by comparing the
-        seasonally adjusted cost of the food basket with the cost in the reference period (previous quarter
-        or baseline), as percentage change. The change is considered normal when the percentage change is 
-        between 0 and 3%, moderate when it is between 3 and 10%, high when it is between 10 and 25%, and
-        severe above 25%. Note that the countries included here only include those monitored by WFP.<br>",
-      '<a href="https://data.humdata.org/dataset/cost-of-the-food-basket" target="_blank">Quelle</a>',
-      
-      
-      "<h2>Betroffene von Naturkatastrophen </h2>",
-      "<h3>Organisation</h3>",
-      "Centre for Research on the Epidemiology of Disasters (CRED) ",
-      "<h3>Datenerhebung </h3>",
-      "Informationen von NGOs, UN Organisationen, Versicherungen, Forschungsinstituten und Presseagenturen. ",
-      "<h3>Erläuterung Indikator </h3>",
-      "People requiring immediate assistance during a period of emergency, i.e.
-        requiring basic survival needs such as food, water, shelter, sanitation and
-        immediate medical assistance.<br>",
-      
-      '<a href="https://data.humdata.org/dataset/emdat-country-profiles" target="_blank">Quelle</a>',
-      
-      
-      "<h2>Binnenvertriebene </h2>",
-      "<h3>Organisation</h3>",
-      "Internal Displacement Monitoring Centre",
-      "<h3>Datenerhebung </h3>",
-      "Informationen von (sub)nationalen Regierungen, UN Agenturen, NGOs, Medien und der Zivilgesellschaft.",
-      "<h3>Erläuterung Indikator </h3>",
-      "Genutzt wird die UN Defintion von Binnenflücchtlingen (UN,
-        1998): Personen oder Personengruppen, die zur Flucht gezwungen oder verpflichtet wurden
-        oder ihre Häuser oder üblichen Wohnsitze verlassen mussten, insbesondere infolge von oder
-        zum Zwecke der Vermeidung der Auswirkungen von bewaffneten Konflikten, Situationen allgemeiner Gewalt,
-        Menschenrechtsverletzungen oder natürlichen oder von Menschen verursachten Katastrophen, und die keine
-        international anerkannte Staatsgrenze überquert haben",
-      '<br><a href="https://www.internal-displacement.org/database/methodology" target="_blank">Quelle</a>',
-      
-      
-      "<h2>Opfer von Gewalttaten </h2>",
-      "<h3>Organisation</h3>",
-      "Armed Conflict Location and Event Data Project",
-      "<h3>Datenerhebung </h3>",
-      "ACLED researchers systematically collect and review the latest reports from selected local,
-        national and international sources, including media, vetted social media accounts, government
-        and NGO reports, and partner organizations.  ACLED researchers work to triangulate reports when
-        and where possible, but they do not independently verify events or gather first-hand information on the ground.
-        ACLED’s local partners often verify and collect first hand information. ACLED employs a range of sourcing strategies
-        to ensure the data are timely and reliable. <br>",
-      "<h3>Erläuterung Indikator </h3>",
-      "Summenindex aus den Opfern von Kämpfen, Explosionen und Gewalt gegen Zivilist*innen",
-      '<br><a href="https://acleddata.com/download/2827/" target="_blank">Quelle</a>',
-      
-      
-      "<h2>Proteste </h2>",
-      "<h3>Organisation</h3>",
-      "Armed Conflict Location and Event Data Project",
-      "<h3>Datenerhebung </h3>",
-      "ACLED researchers systematically collect and review the latest reports from selected local,
-        national and international sources, including media, vetted social media accounts, government
-        and NGO reports, and partner organizations.  ACLED researchers work to triangulate reports when
-        and where possible, but they do not independently verify events or gather first-hand information on the ground.
-        ACLED’s local partners often verify and collect first hand information. ACLED employs a range of sourcing strategies
-        to ensure the data are timely and reliable. <br>",
-      "<h3>Erläuterung Indikator </h3>",
-      "Summenindex aus der Anzahl von Protesten und Aufständen.",
-      '<br> <a href="https://acleddata.com/download/2827/" target="_blank">Quelle</a>'
-      
-    )
+    
+    #load Quellen
+    source(here("quellen.r"), encoding = "UTF-8")
   }
   )
   
@@ -563,6 +321,7 @@ server <- function(input, output, session) {
   })
   
   
+  #get clicked country
   data_boxes_reac <- reactive({
     
     clicked_country_africa_food <- input$africa_map_food_shape_click$id
@@ -581,7 +340,7 @@ server <- function(input, output, session) {
     
   })
   
-  
+  #protest box
   output$demoBox <- renderValueBox({
     
     data_box_acled_protest <- data_boxes_reac() 
@@ -602,6 +361,7 @@ server <- function(input, output, session) {
     )
   })
   
+  #violence box
   output$violenceBox <- renderValueBox({
     
     data_box_acled_fatalities <- data_boxes_reac() 
@@ -624,6 +384,7 @@ server <- function(input, output, session) {
     
   })
   
+  #displacement box
   output$displacementBox <- renderValueBox({
     
     data_box_int_displacement <- data_boxes_reac() 
