@@ -262,7 +262,7 @@ server <- function(input, output, session) {
   output$quellen <- renderUI({
     
     #load Quellen
-    source(here("quellen.r"), encoding = "UTF-8")
+    source(here("data", "quellen.r"), encoding = "UTF-8")
   }
   )
   
