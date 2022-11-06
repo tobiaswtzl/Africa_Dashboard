@@ -1,10 +1,10 @@
 # Africa_Dashboard
 
-This Dashboard visualises data from various sources for the Africa DG of the German Federal Ministry for Economic Cooperation and Development (BMZ). Since the (financial) data is confidential, the data is not uploaded on GitHub. The Dashboard consists of two parts:
+This dashboard visualises data from various sources for the Africa Directorate-General of the German Federal Ministry for Economic Cooperation and Development (BMZ). As the (financial) data is confidential, the data is not uploaded to GitHub. The dashboard consists of two parts:
 
 ## Current Situation
 
-This part of the dashboard provides an overview about the current situation in Africa visualising the current level of hunger, food prices, internal displacement, violence, protests and number of people affected by natural disasters.
+This part of the dashboard provides an overview of the current situation in Africa, showing the current status of hunger, food prices, internal displacement, violence, protests and the number of people affected by natural disasters.
 
 ## Bilateral Development Aid to Africa
 
