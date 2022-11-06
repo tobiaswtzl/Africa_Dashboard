@@ -136,7 +136,7 @@ ui <- dashboardPage(
                                 htmlOutput("einschaetzung_referate"),
                                 
                                 #fix height, enable scrollbar
-                                style = 'overflow-y:scroll'
+                                style = 'overflow-y:scroll; height:67vh'
                               )
                             ),
                             
