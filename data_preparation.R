@@ -336,7 +336,7 @@ data_ch <- data_ch_raw %>%
 #######################
 
 #load tokens
-tokens <- read.csv(here("data", "token_acled.csv"))
+tokens <- read.csv(here("data", "tokens.csv"))
 
 #get json file
 res <- GET("https://api.ipcinfo.org/country?format=json",
