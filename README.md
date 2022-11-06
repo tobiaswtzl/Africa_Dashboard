@@ -6,7 +6,7 @@ This dashboard visualises data from various sources for the Africa Directorate-G
 
 This part of the dashboard provides an overview of the current situation in Africa, showing the current status of hunger, food prices, internal displacement, violence, protests and the number of people affected by natural disasters.
 
-## Bilateral Development Aid to Africa
+## Bilateral Development Aid to African Countries
 
 The amount of German bilateral development aid to African countries is visualised and disaggregated by Kernthema, Referat (Division) and feminist component.
 
